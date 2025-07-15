@@ -50,9 +50,10 @@ sobel_mag = cv2.normalize(sobel_mag, None, 0, 255, cv2.NORM_MINMAX).astype(np.ui
 prewitt_x = np.array([[-1, 0, 1],
                       [-1, 0, 1],
                       [-1, 0, 1]], dtype=np.float32)
-prewitt_y = np.array([[1, 1, 1],
-                      [0, 0, 0],
-                      [-1, -1, -1]], dtype=np.float32)
+# prewitt_y = np.array([[1, 1, 1],
+#                       [0, 0, 0],
+#                       [-1, -1, -1]], dtype=np.float32)
+prewitt_y = prewitt_x.T
 
 # apply convolution
 px = cv2.filter2D(img_gray.astype(np.float32), -1, prewitt_x)
@@ -86,7 +87,7 @@ enhancement_pipline.enhance_img(BONES)
 
 ''' PROBLEM 4:  IMAGE ENHANCEMENT PIPELINE '''
 # new photo to load
-BONES2 = 'Image9.jpg'
+MRI = 'Image9.jpg'
 
 # accessory file created to handle enhancement logic pipeline
-enhancement_pipline.enhance_img(BONES2)
+enhancement_pipline.enhance_img(MRI)
