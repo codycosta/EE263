@@ -32,37 +32,34 @@ print(f'DCT:\n{dct_matrix}\n\nIDCT:\n{idct_matrix}')
 
 ''' PROBLEM 2:  BASIS FUNCTIONS OF DCT '''
 
-def dct_basis(n=4):
-    # init empty 2D array
-    basis = np.zeros([n, n, n, n])
-
-    # compute 2D idct for each element in array
-    for u in range(n):
-        for v in range(n):
-            coefficient = np.zeros([n, n])
-            coefficient[u, v] = 1
-            basis[u, v] = idctn(coefficient, type=2, norm='ortho')
-
+def dct_basis(N):
+    basis = []
+    for u in range(N):
+        for v in range(N):
+            coeff = np.zeros((N, N))
+            coeff[u, v] = 1  # Impulse at (u, v)
+            
+            # 2D inverse DCT with orthogonal normalization
+            basis_fn = idctn(coeff, norm='ortho')
+            basis.append(basis_fn)
     return basis
+
 
 N = 4
 basis_funcs = dct_basis(N)
 
-# Plot 16 basis functions
+# # Plot 16 basis functions
 fig, axes = plt.subplots(N, N, figsize=(6, 6))
-for u in range(N):
-    for v in range(N):
-        ax = axes[u, v]
-        ax.imshow(basis_funcs[u, v], cmap='gray', interpolation='nearest')
-        ax.axis('off')
-        ax.set_title(f"({u},{v})", fontsize=8)
+for i, ax in enumerate(axes.flat):
+    ax.imshow(basis_funcs[i], cmap='gray')
+    ax.axis('off')
 
-        # Add border (rectangle)
-        rect = patches.Rectangle(
-            (0, 0), 1, 1, transform=ax.transAxes,
-            linewidth=1.5, edgecolor='black', facecolor='none'
-        )
-        ax.add_patch(rect)
+    # Add border (rectangle)
+    rect = patches.Rectangle(
+        (0, 0), 1, 1, transform=ax.transAxes,
+        linewidth=1.5, edgecolor='black', facecolor='none'
+    )
+    ax.add_patch(rect)
 
 plt.tight_layout()
 plt.show()
@@ -110,3 +107,59 @@ for i, ax in enumerate(axes.flat):
 
 plt.tight_layout()
 plt.show()
+
+
+''' PROBLEM 4:  8X8 DCT BASIS '''
+
+N = 8
+basis_functions = dct_basis(N)
+
+# Plot 64 basis functions (8x8 grid)
+fig, axes = plt.subplots(N, N, figsize=(10, 10))
+for i, ax in enumerate(axes.flat):
+    ax.imshow(basis_functions[i], cmap='gray')
+    ax.axis('off')
+
+    # Add border (rectangle)
+    rect = patches.Rectangle(
+        (0, 0), 1, 1, transform=ax.transAxes,
+        linewidth=1.5, edgecolor='black', facecolor='none'
+    )
+    ax.add_patch(rect)
+
+plt.tight_layout()
+plt.show()
+
+
+''' PROBLEM 5:  AREA OF CHAIN CLOSURE '''
+
+# 8-connectivity direction vectors
+directions = {
+    0: (1, 0),   1: (1, -1),  2: (0, -1),  3: (-1, -1),
+    4: (-1, 0),  5: (-1, 1),  6: (0, 1),   7: (1, 1)
+}
+
+def chain_code_area(chain_code):
+    # Convert string to list of integers
+    chain = [int(c) for c in str(chain_code)]
+    
+    # Starting point
+    x, y = 0, 0
+    points = [(x, y)]
+    
+    # Build boundary points
+    for d in chain:
+        dx, dy = directions[d]
+        x += dx
+        y += dy
+        points.append((x, y))
+    
+    # Shoelace formula
+    points = np.array(points)
+    x = points[:, 0]
+    y = points[:, 1]
+    area = 0.5 * abs(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))
+    
+    return int(area)
+
+print(chain_code_area(217644))
