@@ -163,3 +163,64 @@ def chain_code_area(chain_code):
     return int(area)
 
 print(chain_code_area(217644))
+
+
+''' PROBLEM 6:  HAND COMPUTE DCT/IDCT '''
+
+mat = np.array([[9, 10, 5, 6],
+                [10, 12, 8, 8],
+                [12, 11, 7, 10],
+                [14, 13, 8, 5]])
+
+# DCT compute (no scipy)
+def manual_dct2(matrix):
+    N = matrix.shape[0]
+    dct = np.zeros([N, N])
+
+    for u in range(N):
+        for v in range(N):
+            alpha_u = np.sqrt(1 / N) if u == 0 else np.sqrt(2 / N)
+            alpha_v = np.sqrt(1 / N) if v == 0 else np.sqrt(2 / N)
+
+            sum_val = 0
+            for x in range(N):
+                for y in range(N):
+
+                    sum_val += matrix[x, y] * \
+                        np.cos((np.pi * (2 * x + 1) * u) / (2 * N)) * \
+                        np.cos((np.pi * (2 * y + 1) * v) / (2 * N))
+                    
+            dct[u, v] = alpha_u * alpha_v * sum_val
+    
+    return dct
+
+
+# IDCT compute (no scipy)
+def manual_idct2(dct_matrix):
+    N = dct_matrix.shape[0]
+    img = np.zeros([N, N])
+
+    for x in range(N):
+        for y in range(N):
+
+            sum_val = 0
+
+            for u in range(N):
+                for v in range(N):
+                    alpha_u = np.sqrt(1 / N) if u == 0 else np.sqrt(2 / N)
+                    alpha_v = np.sqrt(1 / N) if v == 0 else np.sqrt(2 / N)
+
+                    sum_val += alpha_u * alpha_v * dct_matrix[u, v] * \
+                                np.cos((np.pi * (2 * x + 1) * u) / (2 * N)) * \
+                                np.cos((np.pi * (2 * y + 1) * v) / (2 * N))
+                    
+            img[x, y] = sum_val
+    return img
+
+
+
+DCT_RES = manual_dct2(mat)
+print(np.round(DCT_RES, 2))
+
+IMG = manual_idct2(DCT_RES)
+print(np.round(IMG, 2))
