@@ -25,8 +25,8 @@ blurred = cv2.GaussianBlur(gray_enhanced, (7, 7), 0)
 
 ''' LIGHT AREA BUMP DEFECTS '''
 # playing around with these values to tune results
-C = -5
-BLOCK_SIZE = 27
+C = -4
+BLOCK_SIZE = 21
 
 # binarize image
 bump_thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, BLOCK_SIZE, C)
@@ -54,6 +54,15 @@ centroids = []
 
 contours = bump_contours + crater_contours
 
+
+# display image processing steps
+cv2.imshow('original', image)
+cv2.imshow('Gray + enhanced contrast', gray_enhanced)
+cv2.imshow('gaussian smoothed', blurred)
+cv2.imshow('light area binary', bump_thresh)
+cv2.imshow('dark area binary', crater_thresh)
+
+
 # plot defects on original image
 for contour in contours:
     M = cv2.moments(contour)
@@ -62,31 +71,17 @@ for contour in contours:
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
 
-        # ignore large dark areas
-        # if cy < 16 or cx > 887:
-        #     continue
-
         centroids.append((cx, cy))
 
         # cv2.circle(blurred, (cx, cy), 5, (0, 255, 0), 2)
         
-    cv2.drawContours(blurred, [contour], -1, (0, 0, 255), 2)
+    cv2.drawContours(blurred, [contour], -1, (0, 0, 255), 1)
 
-# for item in crater_centroids:
-#     cx = item[0]
-#     cy = item[1]
 
-#     cv2.circle(blurred, (cx, cy), 5, (0, 255, 0), 2)
-
-# centroids += crater_centroids
     
+# write results to blurred photo and display mapped defects
 cv2.imwrite('defects_labeled_improved.jpg', blurred)
-
-cv2.imshow('GE', gray_enhanced)
-cv2.imshow('blurred', blurred)
-# cv2.imshow('binary', thresh)
-# cv2.imshow('defects', image)
-
+cv2.imshow('mapped defects', blurred)
 # print defect count
 print(f'defect count = {len(contours)}')
 
